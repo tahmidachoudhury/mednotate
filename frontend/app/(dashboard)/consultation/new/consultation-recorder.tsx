@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -34,14 +34,32 @@ import {
   ThumbsUp,
   Wand2,
 } from "lucide-react"
+import { useRef, useCallback } from "react"
 
 export function ConsultationRecorder() {
   const { toast } = useToast()
+  /// State variables
   const [isRecording, setIsRecording] = useState(false)
   const [activeTab, setActiveTab] = useState("record")
   const [transcription, setTranscription] = useState("")
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [recordingError, setRecordingError] = useState<string | null>(null)
+  // Refs
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const audioChunksRef = useRef<Blob[]>([])
+  // More state
   const [language, setLanguage] = useState("english")
   const [noteTemplate, setNoteTemplate] = useState("soap")
+
+  React.useEffect(() => {
+    // Cleanup function to stop any ongoing recordings when component unmounts
+    return () => {
+      if (mediaRecorderRef.current && isRecording) {
+        mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [isRecording]);
+  
 
   // Simulated waveform data
   const waveformData = Array.from(
@@ -49,43 +67,107 @@ export function ConsultationRecorder() {
     () => Math.random() * (isRecording ? 40 : 5)
   )
 
-  const handleStartRecording = () => {
-    setIsRecording(true)
-    toast({
-      title: "Recording started",
-      description: "Speak clearly for best results",
-    })
-
-    // Simulate transcription appearing
-    const demoText =
-      "Patient presents with complaints of persistent headache for the past three days. Pain is described as throbbing and located primarily in the frontal region. Patient reports that pain is worse in the morning and is accompanied by mild nausea. No vomiting or visual disturbances. Patient has been taking over-the-counter ibuprofen with minimal relief. Medical history includes hypertension controlled with lisinopril. Vital signs are within normal limits. Physical examination reveals mild tenderness to palpation over the frontal sinuses."
-
-    let currentText = ""
-    const words = demoText.split(" ")
-
-    const interval = setInterval(() => {
-      if (words.length > 0) {
-        currentText += words.shift() + " "
-        setTranscription(currentText)
-      } else {
-        clearInterval(interval)
+  const handleStartRecording = async () => {
+    try {
+      setRecordingError(null)
+      audioChunksRef.current = []
+      
+      // Request microphone access
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      
+      // Create a MediaRecorder instance
+      const mediaRecorder = new MediaRecorder(stream)
+      mediaRecorderRef.current = mediaRecorder
+      
+      // Handle data available event
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data)
+        }
       }
-    }, 300)
+      
+      // Start recording
+      mediaRecorder.start()
+      setIsRecording(true)
+      
+      toast({
+        title: "Recording started",
+        description: "Speak clearly for best results",
+      })
+    } catch (error) {
+      console.error("Error starting recording:", error)
+      setRecordingError("Could not access microphone. Please check your browser permissions.")
+      toast({
+        title: "Recording failed",
+        description: "Could not access microphone",
+        variant: "destructive",
+      })
+    }
   }
-
-  const handleStopRecording = () => {
+  
+  const handleStopRecording = async () => {
+    if (!mediaRecorderRef.current) {
+      setRecordingError("No active recording found")
+      return
+    }
+    
+    // Create a function to handle the stopping and processing of the recording
+    const processRecording = async () => {
+      try {
+        setIsProcessing(true)
+        
+        // Create a blob from all the audio chunks
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
+        
+        // Create a FormData object to send to our API
+        const formData = new FormData()
+        formData.append('audio', audioBlob)
+        
+        // Send the audio to our API endpoint
+        const response = await fetch('/api/transcribe', {
+          method: 'POST',
+          body: formData,
+        })
+        
+        if (!response.ok) {
+          throw new Error('Failed to transcribe audio')
+        }
+        
+        const data = await response.json()
+        setTranscription(data.transcription)
+        
+        toast({
+          title: "Recording stopped",
+          description: "Transcription complete",
+        })
+        
+        // After a delay, move to the next tab
+        setTimeout(() => {
+          setActiveTab("review")
+        }, 1000)
+      } catch (error) {
+        console.error("Error processing recording:", error)
+        setRecordingError("Failed to transcribe audio. Please try again.")
+        toast({
+          title: "Transcription failed",
+          description: "Failed to transcribe audio",
+          variant: "destructive",
+        })
+      } finally {
+        setIsProcessing(false)
+      }
+    }
+    
+    // Stop the media recorder and process the recording when it stops
+    mediaRecorderRef.current.onstop = processRecording
+    
+    // Stop the media recorder and all tracks
+    mediaRecorderRef.current.stop()
+    mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop())
+    
     setIsRecording(false)
-    toast({
-      title: "Recording stopped",
-      description: "Transcription complete",
-    })
-
-    // After a delay, move to the next tab
-    setTimeout(() => {
-      setActiveTab("review")
-    }, 1000)
   }
-
+  
   const handleGenerateNote = () => {
     toast({
       title: "Generating medical note",
@@ -159,26 +241,32 @@ export function ConsultationRecorder() {
                 ))}
               </div>
 
-              <Button
-                size="lg"
-                onClick={
-                  isRecording ? handleStopRecording : handleStartRecording
-                }
-                className={isRecording ? "bg-red-500 hover:bg-red-600" : ""}
-              >
-                {isRecording ? (
-                  <>
+              {isProcessing ? (
+                <Button disabled className="bg-gray-500 text-lg py-2 px-4">
+                  <span className="animate-pulse">Processing audio...</span>
+                </Button>
+                  ) : isRecording ? (
+                  <Button
+                  onClick={handleStopRecording}
+                  className="bg-red-500 hover:bg-red-600 text-lg py-2 px-4"
+                  >
                     <MicOff className="mr-2 h-5 w-5" />
                     Stop Recording
-                  </>
-                ) : (
-                  <>
-                    <Mic className="mr-2 h-5 w-5" />
-                    Start Recording
-                  </>
+                    </Button>
+                    ) : (
+                    <Button className="text-lg py-2 px-4" onClick={handleStartRecording}>
+                      <Mic className="mr-2 h-5 w-5" />
+                      Start Recording
+                      </Button>
+              )}
+              </div>
+
+              {recordingError && (
+                <div className="mt-2 text-sm text-red-500">
+                  <AlertCircle className="inline-block mr-1 h-4 w-4" />
+                  {recordingError}
+                  </div>
                 )}
-              </Button>
-            </div>
 
             <div className="rounded-lg border p-4">
               <div className="mb-2 flex items-center justify-between">
@@ -216,7 +304,7 @@ export function ConsultationRecorder() {
             </div>
 
             <div className="flex justify-between">
-              <Button variant="outline" onClick={() => setActiveTab("record")}>
+              <Button onClick={() => setActiveTab("record")}>
                 Back to Recording
               </Button>
               <Button onClick={handleGenerateNote}>
@@ -243,15 +331,15 @@ export function ConsultationRecorder() {
                 </Select>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">
+                <Button>
                   <Save className="mr-2 h-4 w-4" />
                   Save Draft
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button className="text-sm">
                   <Download className="mr-2 h-4 w-4" />
                   Export
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button>
                   <Share2 className="mr-2 h-4 w-4" />
                   Share
                 </Button>
@@ -368,7 +456,7 @@ export function ConsultationRecorder() {
                     <ThumbsUp className="mr-2 h-4 w-4" />
                     Approve Note
                   </Button>
-                  <Button variant="outline">
+                  <Button>
                     <ArrowRight className="mr-2 h-4 w-4" />
                     Continue Editing
                   </Button>
@@ -393,15 +481,15 @@ export function ConsultationRecorder() {
                 </Select>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">
+                <Button className="text-sm">
                   <Save className="mr-2 h-4 w-4" />
                   Save Draft
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button className="text-sm">
                   <Download className="mr-2 h-4 w-4" />
                   Export
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button>
                   <Share2 className="mr-2 h-4 w-4" />
                   Share
                 </Button>
@@ -518,7 +606,7 @@ export function ConsultationRecorder() {
                     <ThumbsUp className="mr-2 h-4 w-4" />
                     Approve Note
                   </Button>
-                  <Button variant="outline">
+                  <Button className="border border-gray-300">
                     <ArrowRight className="mr-2 h-4 w-4" />
                     Continue Editing
                   </Button>
