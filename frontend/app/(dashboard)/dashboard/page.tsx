@@ -1,16 +1,25 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Activity, Calendar, Clock, FileText, Mic, Users } from "lucide-react"
 
 export default function DashboardPage() {
   return (
-    <div className="flex flex-col gap-6">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col gap-6 min-w-full">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 ">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Today's Consultations</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Today's Consultations
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -40,7 +49,9 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Upcoming Appointments</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Upcoming Appointments
+            </CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -54,7 +65,9 @@ export default function DashboardPage() {
         <Card className="col-span-4">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Your recent consultations and notes</CardDescription>
+            <CardDescription>
+              Your recent consultations and notes
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -65,10 +78,12 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex-1 space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      {i % 2 === 0 ? "Consultation Note" : "Progress Note"} - Patient #{i + 100}
+                      {i % 2 === 0 ? "Consultation Note" : "Progress Note"} -
+                      Patient #{i + 100}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {i % 2 === 0 ? "Completed" : "Draft"} • {i} hour{i !== 1 ? "s" : ""} ago
+                      {i % 2 === 0 ? "Completed" : "Draft"} • {i} hour
+                      {i !== 1 ? "s" : ""} ago
                     </p>
                   </div>
                   <Button variant="ghost" size="sm">
@@ -87,7 +102,9 @@ export default function DashboardPage() {
         <Card className="col-span-3">
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Start a new task or continue where you left off</CardDescription>
+            <CardDescription>
+              Start a new task or continue where you left off
+            </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
             <Button className="w-full justify-start gap-2" asChild>
@@ -127,7 +144,9 @@ export default function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle>Upcoming Appointments</CardTitle>
-              <CardDescription>Your schedule for the next few days</CardDescription>
+              <CardDescription>
+                Your schedule for the next few days
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -139,7 +158,8 @@ export default function DashboardPage() {
                     </div>
                     <div className="flex-1 space-y-1">
                       <p className="text-sm font-medium leading-none">
-                        Patient #{i + 200} - {i % 2 === 0 ? "Follow-up" : "Initial Consultation"}
+                        Patient #{i + 200} -{" "}
+                        {i % 2 === 0 ? "Follow-up" : "Initial Consultation"}
                       </p>
                       <p className="text-sm text-muted-foreground">
                         {9 + i}:00 AM - {10 + i}:00 AM
@@ -170,9 +190,12 @@ export default function DashboardPage() {
                     </div>
                     <div className="flex-1 space-y-1">
                       <p className="text-sm font-medium leading-none">
-                        Patient #{i + 300} - {i % 2 === 0 ? "Check-up" : "Consultation"}
+                        Patient #{i + 300} -{" "}
+                        {i % 2 === 0 ? "Check-up" : "Consultation"}
                       </p>
-                      <p className="text-sm text-muted-foreground">{i % 2 === 0 ? "Room 101" : "Room 102"}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {i % 2 === 0 ? "Room 101" : "Room 102"}
+                      </p>
                     </div>
                     <Button size="sm">Start</Button>
                   </div>
@@ -185,7 +208,9 @@ export default function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle>Completed Appointments</CardTitle>
-              <CardDescription>Your recently completed appointments</CardDescription>
+              <CardDescription>
+                Your recently completed appointments
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -197,10 +222,12 @@ export default function DashboardPage() {
                     </div>
                     <div className="flex-1 space-y-1">
                       <p className="text-sm font-medium leading-none">
-                        Patient #{i + 400} - {i % 2 === 0 ? "Follow-up" : "Initial Consultation"}
+                        Patient #{i + 400} -{" "}
+                        {i % 2 === 0 ? "Follow-up" : "Initial Consultation"}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Completed • Notes {i % 2 === 0 ? "Finalized" : "Pending"}
+                        Completed • Notes{" "}
+                        {i % 2 === 0 ? "Finalized" : "Pending"}
                       </p>
                     </div>
                     <Button variant="outline" size="sm">

@@ -92,7 +92,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <SidebarProvider defaultOpen={open} onOpenChange={setOpen}>
-      <div className="flex h-screen overflow-hidden">
+      <div className="flex min-w-screen w-full overflow-hidden">
         <Sidebar className="border-r">
           <SidebarHeader className="border-b px-6 py-3">
             <div className="flex items-center gap-2 text-xl font-semibold">
@@ -119,7 +119,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <SidebarMenu>
               {routes.map((route) => (
                 <SidebarMenuItem key={route.href}>
-                  <SidebarMenuButton asChild isActive={pathname === route.href} tooltip={route.title}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === route.href}
+                    tooltip={route.title}
+                  >
                     <Link href={route.href}>
                       <route.icon className="h-5 w-5" />
                       <span>{route.title}</span>
@@ -162,7 +166,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <SidebarTrigger />
             <div className="flex-1">
               <h1 className="text-lg font-semibold">
-                {routes.find((route) => route.href === pathname)?.title || "Dashboard"}
+                {routes.find((route) => route.href === pathname)?.title ||
+                  "Dashboard"}
               </h1>
             </div>
             <div className="flex items-center gap-2">
