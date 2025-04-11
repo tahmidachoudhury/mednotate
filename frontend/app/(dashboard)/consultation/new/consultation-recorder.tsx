@@ -35,6 +35,7 @@ import {
   Wand2,
 } from "lucide-react"
 import PatientNotes from "./patient-notes"
+import MedicalNotes from "./clinician-notes"
 
 export function ConsultationRecorder() {
   const { toast } = useToast()
@@ -42,7 +43,6 @@ export function ConsultationRecorder() {
   const [activeTab, setActiveTab] = useState("record")
   const [transcription, setTranscription] = useState("")
   const [language, setLanguage] = useState("english")
-  const [noteTemplate, setNoteTemplate] = useState("soap")
 
   // Simulated waveform data
   const waveformData = Array.from(
@@ -228,7 +228,7 @@ export function ConsultationRecorder() {
           </TabsContent>
 
           <TabsContent value="note" className="mt-4 space-y-4">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            {/* <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
                 <h3 className="font-medium">Medical Note Template</h3>
                 <Select value={noteTemplate} onValueChange={setNoteTemplate}>
@@ -375,7 +375,8 @@ export function ConsultationRecorder() {
                   </Button>
                 </div>
               </div>
-            </div>
+            </div> */}
+            <MedicalNotes />
           </TabsContent>
           <TabsContent value="patient-note" className="mt-4 space-y-4">
             <PatientNotes />

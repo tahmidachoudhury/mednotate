@@ -1,7 +1,9 @@
 // components/InlineMarkdownEditor.tsx
+import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Label } from "@radix-ui/react-label"
 import { Switch } from "@radix-ui/react-switch"
+import { toast, useToast } from "@/hooks/use-toast"
 import { Download, Save, Share2 } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import ReactMarkdown from "react-markdown"
@@ -12,7 +14,11 @@ interface MarkdownResponse {
   success?: boolean
 }
 
-function InlineMarkdownEditor(): JSX.Element {
+interface props {
+  noteType: string
+}
+
+export function InlineMarkdownEditor({ noteType }: props): JSX.Element {
   const [markdown, setMarkdown] = useState<string>("")
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
@@ -38,6 +44,10 @@ function InlineMarkdownEditor(): JSX.Element {
       const errorMessage =
         err instanceof Error ? err.message : "Unknown error occurred"
       setError(errorMessage)
+      toast({
+        title: "LLM API Error!",
+        description: errorMessage,
+      })
       console.error("Error fetching markdown:", err)
     } finally {
       setIsLoading(false)
@@ -71,6 +81,10 @@ function InlineMarkdownEditor(): JSX.Element {
       const errorMessage =
         err instanceof Error ? err.message : "Unknown error occurred"
       setError(errorMessage)
+      toast({
+        title: "Error Saving!",
+        description: errorMessage,
+      })
       console.error("Error saving markdown:", err)
     } finally {
       setIsLoading(false)
@@ -99,9 +113,9 @@ function InlineMarkdownEditor(): JSX.Element {
   }, [])
 
   return (
-    <>
+    <div>
       <div className="border-b bg-muted px-4 py-2 flex justify-between">
-        <h3 className="font-medium">Generated Patient Note</h3>
+        <h3 className="font-medium">{noteType}</h3>
         <div className="flex bg-gray-100 rounded w-fit">
           <Button
             variant={viewMode === "edit" ? "default" : "secondary"}
@@ -117,8 +131,6 @@ function InlineMarkdownEditor(): JSX.Element {
           </Button>
         </div>
       </div>
-      {isLoading && <p className="text-blue-500">Loading...</p>}
-      {error && <p className="text-red-500">Error: {error}</p>}
 
       <div className="  mx-auto">
         {/* Toggle buttons for view mode */}
@@ -131,6 +143,7 @@ function InlineMarkdownEditor(): JSX.Element {
               value={markdown}
               onChange={(e) => setMarkdown(e.target.value)}
               placeholder="Edit your markdown here..."
+              disabled={!!error}
             />
           ) : (
             <div
@@ -168,7 +181,7 @@ function InlineMarkdownEditor(): JSX.Element {
           </button>
         </div> */}
       </div>
-    </>
+    </div>
   )
 }
 
@@ -198,7 +211,7 @@ export default function PatientNotes(): JSX.Element {
       <div className="grid gap-4">
         <div>
           <div className="rounded-lg border">
-            <InlineMarkdownEditor />
+            <InlineMarkdownEditor noteType="Generated Patient Note" />
           </div>
         </div>
       </div>
