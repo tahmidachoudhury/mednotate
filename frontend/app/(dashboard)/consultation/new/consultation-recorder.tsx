@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useRef, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -34,7 +34,6 @@ import {
   ThumbsUp,
   Wand2,
 } from "lucide-react"
-import { useRef, useCallback } from "react"
 
 export function ConsultationRecorder() {
   const { toast } = useToast()
@@ -44,12 +43,14 @@ export function ConsultationRecorder() {
   const [transcription, setTranscription] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [recordingError, setRecordingError] = useState<string | null>(null)
+  const [audioLevel, setAudioLevel] = useState<number[]>(new Array(50).fill(5))
+  const [language, setLanguage] = useState("english")
+  const [noteTemplate, setNoteTemplate] = useState("soap")
   // Refs
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
-  // More state
-  const [language, setLanguage] = useState("english")
-  const [noteTemplate, setNoteTemplate] = useState("soap")
+  const analyserRef = useRef<AnalyserNode | null>(null)
+  const animationFrameRef = useRef<number | undefined>(undefined)
 
   React.useEffect(() => {
     // Cleanup function to stop any ongoing recordings when component unmounts
@@ -57,117 +58,172 @@ export function ConsultationRecorder() {
       if (mediaRecorderRef.current && isRecording) {
         mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
       }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
     };
   }, [isRecording]);
-  
-
-  // Simulated waveform data
-  const waveformData = Array.from(
-    { length: 50 },
-    () => Math.random() * (isRecording ? 40 : 5)
-  )
 
   const handleStartRecording = async () => {
     try {
       setRecordingError(null)
       audioChunksRef.current = []
+
+      if (typeof window === 'undefined') {
+        throw new Error("Audio recording is not available in this environment")
+      }
+
+      if (!navigator?.mediaDevices?.getUserMedia) {
+        throw new Error(`Audio recording is not supported in your browser. Please ensure:
+          1. You're using HTTPS or localhost
+          2. Microphone permissions are not blocked
+          3. Your browser is up to date`)
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          channelCount: 1,
+          sampleRate: 44100,
+        } 
+      })
+
+      // Set up audio context and analyser
+      const audioContext = new AudioContext()
+      const source = audioContext.createMediaStreamSource(stream)
+      const analyser = audioContext.createAnalyser()
+      analyser.fftSize = 256
+      source.connect(analyser)
+      analyserRef.current = analyser
+
+      // Create and configure MediaRecorder
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported('audio/webm') 
+          ? 'audio/webm' 
+          : 'audio/mp4',
+      })
       
-      // Request microphone access
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      
-      // Create a MediaRecorder instance
-      const mediaRecorder = new MediaRecorder(stream)
       mediaRecorderRef.current = mediaRecorder
       
-      // Handle data available event
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data)
         }
       }
-      
-      // Start recording
-      mediaRecorder.start()
+
+      // Start recording and visualization
+      mediaRecorder.start(1000) // Collect data every second
       setIsRecording(true)
-      
+      startVisualization()
+
       toast({
         title: "Recording started",
         description: "Speak clearly for best results",
       })
-    } catch (error) {
+
+    } catch (error: any) {
       console.error("Error starting recording:", error)
-      setRecordingError("Could not access microphone. Please check your browser permissions.")
+      setRecordingError(error.message || "Failed to start recording")
       toast({
         title: "Recording failed",
-        description: "Could not access microphone",
+        description: error.message || "Could not access microphone",
         variant: "destructive",
       })
     }
   }
-  
+
+  const startVisualization = () => {
+    const updateVisualizer = () => {
+      if (!analyserRef.current || !isRecording) return
+
+      const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount)
+      analyserRef.current.getByteFrequencyData(dataArray)
+
+      // Calculate average level
+      const average = dataArray.reduce((a, b) => a + b) / dataArray.length
+      const normalizedLevel = (average / 255) * 100 // Convert to percentage
+
+      setAudioLevel(prev => {
+        const newLevels = [...prev.slice(1), normalizedLevel]
+        return newLevels
+      })
+
+      animationFrameRef.current = requestAnimationFrame(updateVisualizer)
+    }
+
+    updateVisualizer()
+  }
+
   const handleStopRecording = async () => {
     if (!mediaRecorderRef.current) {
       setRecordingError("No active recording found")
       return
     }
-    
+
+    // Cancel the animation frame
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+    }
+
     // Create a function to handle the stopping and processing of the recording
     const processRecording = async () => {
       try {
         setIsProcessing(true)
         
-        // Create a blob from all the audio chunks
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
-        
-        // Create a FormData object to send to our API
+        const audioBlob = new Blob(audioChunksRef.current, { 
+          type: mediaRecorderRef.current?.mimeType || 'audio/webm' 
+        })
+
+        // Log the blob size and type for debugging
+        console.log('Audio blob:', {
+          size: audioBlob.size,
+          type: audioBlob.type
+        })
+
         const formData = new FormData()
         formData.append('audio', audioBlob)
-        
-        // Send the audio to our API endpoint
+
         const response = await fetch('/api/transcribe', {
           method: 'POST',
           body: formData,
         })
-        
+
         if (!response.ok) {
-          throw new Error('Failed to transcribe audio')
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Failed to transcribe audio')
         }
-        
+
         const data = await response.json()
         setTranscription(data.transcription)
-        
+
         toast({
           title: "Recording stopped",
           description: "Transcription complete",
         })
-        
-        // After a delay, move to the next tab
+
         setTimeout(() => {
           setActiveTab("review")
         }, 1000)
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error processing recording:", error)
-        setRecordingError("Failed to transcribe audio. Please try again.")
+        setRecordingError(error.message || "Failed to transcribe audio. Please try again.")
         toast({
           title: "Transcription failed",
-          description: "Failed to transcribe audio",
+          description: error.message,
           variant: "destructive",
         })
       } finally {
         setIsProcessing(false)
       }
     }
-    
-    // Stop the media recorder and process the recording when it stops
+
     mediaRecorderRef.current.onstop = processRecording
-    
-    // Stop the media recorder and all tracks
     mediaRecorderRef.current.stop()
     mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop())
-    
     setIsRecording(false)
   }
-  
+
   const handleGenerateNote = () => {
     toast({
       title: "Generating medical note",
@@ -229,12 +285,12 @@ export function ConsultationRecorder() {
 
               {/* Waveform visualization */}
               <div className="flex h-16 w-full items-center justify-center gap-1">
-                {waveformData.map((height, index) => (
+                {audioLevel.map((height, index) => (
                   <div
                     key={index}
                     className="h-full w-1 rounded-full bg-teal-500"
                     style={{
-                      height: `${height}%`,
+                      height: `${Math.max(5, height)}%`,
                       transition: "height 0.1s ease-in-out",
                     }}
                   />
