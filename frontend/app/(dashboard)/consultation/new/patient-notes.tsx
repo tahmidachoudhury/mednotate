@@ -143,7 +143,6 @@ export function InlineMarkdownEditor({ noteType }: props): JSX.Element {
               value={markdown}
               onChange={(e) => setMarkdown(e.target.value)}
               placeholder="Edit your markdown here..."
-              disabled={!!error}
             />
           ) : (
             <div
