@@ -74,7 +74,7 @@ export function LoginForm() {
       setIsLoading(false)
       toast({
         title: "Login successful",
-        description: "Welcome back to MedScribe",
+        description: "Welcome back to Mednotate",
       })
       router.push("/dashboard")
     }, 1000)

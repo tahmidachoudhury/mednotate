@@ -5,8 +5,8 @@ import Link from "next/link"
 import { LoginForm } from "./login-form"
 
 export const metadata: Metadata = {
-  title: "Login - MedScribe",
-  description: "Login to your MedScribe account",
+  title: "Login - Mednotate",
+  description: "Login to your Mednotate account",
 }
 
 export default function LoginPage() {
@@ -39,13 +39,13 @@ export default function LoginPage() {
             <path d="M10 14h4" />
             <path d="M18 18v2a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-2" />
           </svg>
-          MedScribe
+          Mednotate
         </div>
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
             <p className="text-lg">
-              "MedScribe has transformed my practice. I can focus on my patients while the app handles documentation
-              accurately and efficiently."
+              "Mednotate has transformed my practice. I can focus on my patients
+              while the app handles documentation accurately and efficiently."
             </p>
             <footer className="text-sm">Dr. Sarah Johnson</footer>
           </blockquote>
@@ -54,13 +54,20 @@ export default function LoginPage() {
       <div className="lg:p-8">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <div className="flex flex-col space-y-2 text-center">
-            <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
-            <p className="text-sm text-muted-foreground">Enter your credentials to sign in to your account</p>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Welcome back
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Enter your credentials to sign in to your account
+            </p>
           </div>
           <LoginForm />
           <p className="px-8 text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <Link href="/register" className="underline underline-offset-4 hover:text-primary">
+            <Link
+              href="/register"
+              className="underline underline-offset-4 hover:text-primary"
+            >
               Register
             </Link>
           </p>

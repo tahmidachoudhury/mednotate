@@ -7,7 +7,7 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "MedScribe - Medical Consultation Assistant",
+  title: "Mednotate - Medical Consultation Assistant",
   description: "AI-powered consultation assistant for medical professionals",
 }
 

@@ -112,7 +112,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <path d="M10 14h4" />
                 <path d="M18 18v2a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-2" />
               </svg>
-              <span>MedScribe</span>
+              <span>Mednotate</span>
             </div>
           </SidebarHeader>
           <SidebarContent>
