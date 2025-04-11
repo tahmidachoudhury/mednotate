@@ -94,9 +94,11 @@ export default function DashboardPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button variant="outline" className="w-full">
-              View All Activity
-            </Button>
+            <Link href="/history" className="w-full">
+              <Button variant="outline" className="w-full">
+                View All Activity
+              </Button>
+            </Link>
           </CardFooter>
         </Card>
         <Card className="col-span-3">
