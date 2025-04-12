@@ -15,27 +15,39 @@ export async function POST(req: NextRequest) {
       type: audioFile.type,
     });
 
-    // Send the audio to Hugging Face's Whisper API
     const response = await fetch(
       'https://api-inference.huggingface.co/models/openai/whisper-large-v3',
       {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${process.env.HF_ACCESS_TOKEN}`,
-          'Content-Type': 'audio/webm',  // Adjust based on your audio format
+          'Content-Type': 'audio/webm',
         },
-        body: await audioFile.arrayBuffer(), // Send the raw audio data
+        body: await audioFile.arrayBuffer(),
       }
     );
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Hugging Face API error:', errorData);
-      return NextResponse.json({ error: 'Failed to transcribe audio' }, { status: 500 });
+    // First try to get the text response to check for HTML error pages
+    const responseText = await response.text();
+    
+    let result;
+    try {
+      // Try to parse as JSON
+      result = JSON.parse(responseText);
+    } catch (e) {
+      console.error('Failed to parse response as JSON:', responseText.slice(0, 200));
+      return NextResponse.json({ 
+        error: 'Invalid response from transcription service' 
+      }, { status: 500 });
     }
 
-    const result = await response.json();
-    // HF Whisper API returns { text: "transcription" }
+    if (!response.ok) {
+      console.error('Hugging Face API error:', result);
+      return NextResponse.json({ 
+        error: `Transcription failed: ${result.error || 'Unknown error'}` 
+      }, { status: 500 });
+    }
+
     return NextResponse.json({ transcription: result.text });
   } catch (error) {
     console.error('Transcription error:', error);

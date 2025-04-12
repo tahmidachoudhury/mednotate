@@ -6,7 +6,8 @@ import { Switch } from "@radix-ui/react-switch"
 import { toast, useToast } from "@/hooks/use-toast"
 import { Download, Save, Share2 } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
-import ReactMarkdown from "react-markdown"
+import React from "react"
+const ReactMarkdown = React.lazy(() => import("react-markdown"))
 import { useReactToPrint } from "react-to-print"
 
 interface MarkdownResponse {
@@ -68,9 +69,9 @@ export function InlineMarkdownEditor({
 
   // Handle exporting to PDF
   const handlePrint = useReactToPrint({
-    content: () => markdownRef.current,
+    print: () => Promise.resolve(markdownRef.current),
     documentTitle: "exported-markdown",
-    onBeforeGetContent: () => {
+    onBeforePrint: () => {
       // Ensure we're in preview mode when printing
       setViewMode("preview")
       return new Promise<void>((resolve) => {
@@ -78,8 +79,8 @@ export function InlineMarkdownEditor({
         setTimeout(resolve, 0)
       })
     },
-    onPrintError: (error: Error) =>
-      console.error("Error printing to PDF:", error),
+    onPrintError: (errorLocation: "onBeforePrint" | "print", error: Error) =>
+      console.error(`Error occurred during ${errorLocation}:`, error),
   })
 
   return (

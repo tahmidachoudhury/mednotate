@@ -7,7 +7,7 @@ dotenv.config()
 
 
 
-export async function getAIMedicalNotes( value : string) {
+export async function getAIMedicalNotes(value: "SOAP" | "DAP" | "BIRP" | "Progress") {
   const endpoint =
     process.env["AZURE_OPENAI_ENDPOINT"] ||
     "https://mednotate-hsil-hackathon.openai.azure.com/"
@@ -68,6 +68,6 @@ ${testTranscript}`,
   return result.choices[0].message.content
 }
 
-getAIMedicalNotes().catch((err) => {
+getAIMedicalNotes("SOAP").catch((err) => {
   console.error("The sample encountered an error:", err)
 })

@@ -27,9 +27,9 @@ const nextConfig = {
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
   },
-  api: {
-    bodyParser: false, // Disables body parsing, required for file uploads
-  },
+  //api: {
+    //bodyParser: false, // Disables body parsing, required for file uploads
+  //},
 };
 
 if (userConfig) {

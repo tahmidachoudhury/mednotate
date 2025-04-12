@@ -43,19 +43,16 @@ export function ConsultationRecorder() {
   const { toast } = useToast()
   /// State variables
   const [isRecording, setIsRecording] = useState(false)
-  const [noteTemplate, setNoteTemplate] = useState("SOAP")
   const [activeTab, setActiveTab] = useState("record")
   const [transcription, setTranscription] = useState("")
   
   const [medicalNote, setMedicalNote] = useState("")
   const [patientNote, setPatientNote] = useState("")
   const [language, setLanguage] = useState("english")
-=======
   const [isProcessing, setIsProcessing] = useState(false)
   const [recordingError, setRecordingError] = useState<string | null>(null)
   const [audioLevel, setAudioLevel] = useState<number[]>(new Array(50).fill(5))
-  const [language, setLanguage] = useState("english")
-  const [noteTemplate, setNoteTemplate] = useState("soap")
+  const [noteTemplate, setNoteTemplate] = useState<"SOAP" | "DAP" | "BIRP" | "Progress">("SOAP")
   // Refs
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
@@ -176,62 +173,58 @@ export function ConsultationRecorder() {
       cancelAnimationFrame(animationFrameRef.current)
     }
 
-    // Create a function to handle the stopping and processing of the recording
-    const processRecording = async () => {
-      try {
-        setIsProcessing(true)
-        
-        const audioBlob = new Blob(audioChunksRef.current, { 
-          type: mediaRecorderRef.current?.mimeType || 'audio/webm' 
-        })
-
-        // Log the blob size and type for debugging
-        console.log('Audio blob:', {
-          size: audioBlob.size,
-          type: audioBlob.type
-        })
-
-        const formData = new FormData()
-        formData.append('audio', audioBlob)
-
-        const response = await fetch('/api/transcribe', {
-          method: 'POST',
-          body: formData,
-        })
-
-        if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(errorData.error || 'Failed to transcribe audio')
-        }
-
-        const data = await response.json()
-        setTranscription(data.transcription)
-
-        toast({
-          title: "Recording stopped",
-          description: "Transcription complete",
-        })
-
-        setTimeout(() => {
-          setActiveTab("review")
-        }, 1000)
-      } catch (error: any) {
-        console.error("Error processing recording:", error)
-        setRecordingError(error.message || "Failed to transcribe audio. Please try again.")
-        toast({
-          title: "Transcription failed",
-          description: error.message,
-          variant: "destructive",
-        })
-      } finally {
-        setIsProcessing(false)
-      }
-    }
-
     mediaRecorderRef.current.onstop = processRecording
     mediaRecorderRef.current.stop()
     mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop())
     setIsRecording(false)
+  }
+
+  const processRecording = async () => {
+    try {
+      setIsProcessing(true);
+      const audioBlob = new Blob(audioChunksRef.current, { 
+        type: mediaRecorderRef.current?.mimeType || 'audio/webm' 
+      });
+
+      const formData = new FormData();
+      formData.append('audio', audioBlob);
+
+      const response = await fetch('/api/transcribe', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to transcribe audio');
+      }
+
+      if (!data.transcription) {
+        throw new Error('No transcription received from service');
+      }
+
+      setTranscription(data.transcription);
+
+      toast({
+        title: "Recording stopped",
+        description: "Transcription complete",
+      });
+
+      setTimeout(() => {
+        setActiveTab("review");
+      }, 1000);
+    } catch (error: any) {
+      console.error("Error processing recording:", error);
+      setRecordingError(error.message || "Failed to transcribe audio. Please try again.");
+      toast({
+        title: "Transcription failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   }
 
   async function handleGenerateNote() {
@@ -383,7 +376,7 @@ export function ConsultationRecorder() {
             <div className="rounded-lg border p-4">
               <div className="flex items-center gap-2">
                 <h3 className="mb-2 font-medium">Transcription Review</h3>
-                <Select value={noteTemplate} onValueChange={setNoteTemplate}>
+                <Select value={noteTemplate} onValueChange={(value) => setNoteTemplate(value as "SOAP" | "DAP" | "BIRP" | "Progress")}>
                   <SelectTrigger className="w-[120px]">
                     <SelectValue placeholder="Template" />
                   </SelectTrigger>
@@ -415,154 +408,6 @@ export function ConsultationRecorder() {
           </TabsContent>
 
           <TabsContent value="note" className="mt-4 space-y-4">
-            {/* <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-2">
-                <h3 className="font-medium">Medical Note Template</h3>
-                <Select value={noteTemplate} onValueChange={setNoteTemplate}>
-                  <SelectTrigger className="w-[120px]">
-                    <SelectValue placeholder="Template" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="soap">SOAP</SelectItem>
-                    <SelectItem value="dap">DAP</SelectItem>
-                    <SelectItem value="birp">BIRP</SelectItem>
-                    <SelectItem value="progress">Progress</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex gap-2">
-                <Button>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Draft
-                </Button>
-                <Button className="text-sm">
-                  <Download className="mr-2 h-4 w-4" />
-                  Export
-                </Button>
-                <Button>
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Share
-                </Button>
-              </div>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="md:col-span-2">
-                <div className="rounded-lg border">
-                  <div className="border-b bg-muted px-4 py-2">
-                    <h3 className="font-medium">Generated Medical Note</h3>
-                  </div>
-                  <div className="p-4">
-                    <div className="mb-4 space-y-2">
-                      <h4 className="font-semibold">Subjective</h4>
-                      <p className="text-sm">
-                        Patient presents with complaints of persistent headache
-                        for the past three days. Pain is described as throbbing
-                        and located primarily in the frontal region. Patient
-                        reports that pain is worse in the morning and is
-                        accompanied by mild nausea. No vomiting or visual
-                        disturbances. Patient has been taking over-the-counter
-                        ibuprofen with minimal relief.
-                      </p>
-                    </div>
-                    <div className="mb-4 space-y-2">
-                      <h4 className="font-semibold">Objective</h4>
-                      <p className="text-sm">
-                        Vital signs: BP 128/82, HR 76, RR 16, Temp 98.6°F, O2
-                        Sat 98%
-                        <br />
-                        Physical examination reveals mild tenderness to
-                        palpation over the frontal sinuses. No periorbital edema
-                        or erythema. PERRLA, EOMI. Tympanic membranes clear
-                        bilaterally. Oropharynx without erythema or exudate.
-                      </p>
-                    </div>
-                    <div className="mb-4 space-y-2">
-                      <h4 className="font-semibold">Assessment</h4>
-                      <p className="text-sm">
-                        1. Acute sinusitis, likely viral in etiology
-                        <br />
-                        2. Tension headache, secondary to sinusitis
-                        <br />
-                        3. Hypertension, controlled on current medication
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      <h4 className="font-semibold">Plan</h4>
-                      <p className="text-sm">
-                        1. Nasal saline irrigation BID
-                        <br />
-                        2. Acetaminophen 500mg q6h PRN for pain
-                        <br />
-                        3. Increase fluid intake
-                        <br />
-                        4. Follow up in 7 days if symptoms persist
-                        <br />
-                        5. Continue current hypertension medication
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      AI-Extracted Insights
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4 text-sm">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Stethoscope className="h-4 w-4 text-teal-600" />
-                        <h4 className="font-medium">Symptoms</h4>
-                      </div>
-                      <ul className="ml-6 list-disc space-y-1 text-muted-foreground">
-                        <li>Headache (frontal)</li>
-                        <li>Nausea (mild)</li>
-                        <li>Sinus tenderness</li>
-                      </ul>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Pill className="h-4 w-4 text-teal-600" />
-                        <h4 className="font-medium">Medications</h4>
-                      </div>
-                      <ul className="ml-6 list-disc space-y-1 text-muted-foreground">
-                        <li>Ibuprofen (OTC)</li>
-                        <li>Lisinopril (current)</li>
-                        <li>Acetaminophen (new)</li>
-                      </ul>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <AlertCircle className="h-4 w-4 text-teal-600" />
-                        <h4 className="font-medium">Suggested Diagnoses</h4>
-                      </div>
-                      <ul className="ml-6 list-disc space-y-1 text-muted-foreground">
-                        <li>Acute sinusitis (viral)</li>
-                        <li>Tension headache</li>
-                        <li>Hypertension (controlled)</li>
-                      </ul>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <div className="flex flex-col gap-2">
-                  <Button>
-                    <ThumbsUp className="mr-2 h-4 w-4" />
-                    Approve Note
-                  </Button>
-                  <Button>
-                    <ArrowRight className="mr-2 h-4 w-4" />
-                    Continue Editing
-                  </Button>
-                </div>
-              </div>
-            </div> */}
             <MedicalNotes content={medicalNote} noteFormat={noteTemplate} />
           </TabsContent>
           <TabsContent value="patient-note" className="mt-4 space-y-4">
@@ -570,7 +415,7 @@ export function ConsultationRecorder() {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
                 <h3 className="font-medium">Medical Note Template</h3>
-                <Select value={noteTemplate} onValueChange={setNoteTemplate}>
+                <Select value={noteTemplate} onValueChange={(value) => setNoteTemplate(value as "SOAP" | "DAP" | "BIRP" | "Progress")}>
                   <SelectTrigger className="w-[120px]">
                     <SelectValue placeholder="Template" />
                   </SelectTrigger>
