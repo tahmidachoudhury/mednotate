@@ -17,36 +17,6 @@ export default function DashboardPage() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-8">
 
-        <Card className="col-span-4">
-
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>
-              Start a new task or continue where you left off
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            <Button className="w-full justify-start gap-2" asChild>
-              <Link href="/consultation/new">
-                <Mic className="h-4 w-4" />
-                Start New Consultation
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start gap-2">
-              <FileText className="h-4 w-4" />
-              Continue Draft Note
-            </Button>
-            <Button variant="outline" className="w-full justify-start gap-2">
-              <Activity className="h-4 w-4" />
-              View Patient Analytics
-            </Button>
-            <Button variant="outline" className="w-full justify-start gap-2">
-              <Calendar className="h-4 w-4" />
-              Schedule Appointment
-            </Button>
-          </CardContent>
-        </Card>
-
               <div className="col-span-4 grid gap-4 md:grid-cols-1 lg:grid-cols-2 ">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -93,6 +63,36 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+        <Card className="col-span-4">
+
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>
+              Start a new task or continue where you left off
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <Button className="w-full justify-start gap-2" asChild>
+              <Link href="/consultation/new">
+                <Mic className="h-4 w-4" />
+                Start New Consultation
+              </Link>
+            </Button>
+            <Button variant="outline" className="w-full justify-start gap-2">
+              <FileText className="h-4 w-4" />
+              Continue Draft Note
+            </Button>
+            <Button variant="outline" className="w-full justify-start gap-2">
+              <Activity className="h-4 w-4" />
+              View Patient Analytics
+            </Button>
+            <Button variant="outline" className="w-full justify-start gap-2">
+              <Calendar className="h-4 w-4" />
+              Schedule Appointment
+            </Button>
+          </CardContent>
+        </Card>
+
 
       </div>
 
