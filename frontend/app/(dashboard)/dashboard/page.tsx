@@ -14,7 +14,40 @@ import { Activity, Calendar, Clock, FileText, Mic, Users } from "lucide-react"
 export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-6 min-w-full">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 ">
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-8">
+
+        <Card className="col-span-4">
+
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>
+              Start a new task or continue where you left off
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <Button className="w-full justify-start gap-2" asChild>
+              <Link href="/consultation/new">
+                <Mic className="h-4 w-4" />
+                Start New Consultation
+              </Link>
+            </Button>
+            <Button variant="outline" className="w-full justify-start gap-2">
+              <FileText className="h-4 w-4" />
+              Continue Draft Note
+            </Button>
+            <Button variant="outline" className="w-full justify-start gap-2">
+              <Activity className="h-4 w-4" />
+              View Patient Analytics
+            </Button>
+            <Button variant="outline" className="w-full justify-start gap-2">
+              <Calendar className="h-4 w-4" />
+              Schedule Appointment
+            </Button>
+          </CardContent>
+        </Card>
+
+              <div className="col-span-4 grid gap-4 md:grid-cols-1 lg:grid-cols-2 ">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -61,74 +94,6 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              Your recent consultations and notes
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <div className="rounded-full bg-teal-100 p-2">
-                    <FileText className="h-4 w-4 text-teal-600" />
-                  </div>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {i % 2 === 0 ? "Consultation Note" : "Progress Note"} -
-                      Patient #{i + 100}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {i % 2 === 0 ? "Completed" : "Draft"} • {i} hour
-                      {i !== 1 ? "s" : ""} ago
-                    </p>
-                  </div>
-                  <Button variant="ghost" size="sm">
-                    View
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Link href="/history" className="w-full">
-              <Button variant="outline" className="w-full">
-                View All Activity
-              </Button>
-            </Link>
-          </CardFooter>
-        </Card>
-        <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>
-              Start a new task or continue where you left off
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            <Button className="w-full justify-start gap-2" asChild>
-              <Link href="/consultation/new">
-                <Mic className="h-4 w-4" />
-                Start New Consultation
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start gap-2">
-              <FileText className="h-4 w-4" />
-              Continue Draft Note
-            </Button>
-            <Button variant="outline" className="w-full justify-start gap-2">
-              <Activity className="h-4 w-4" />
-              View Patient Analytics
-            </Button>
-            <Button variant="outline" className="w-full justify-start gap-2">
-              <Calendar className="h-4 w-4" />
-              Schedule Appointment
-            </Button>
-          </CardContent>
-        </Card>
       </div>
 
       <Tabs defaultValue="upcoming">
