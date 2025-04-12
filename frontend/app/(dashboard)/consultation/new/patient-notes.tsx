@@ -16,43 +16,18 @@ interface MarkdownResponse {
 
 interface props {
   noteType: string
+  markdownPayload: string
 }
 
-export function InlineMarkdownEditor({ noteType }: props): JSX.Element {
-  const [markdown, setMarkdown] = useState<string>("")
+export function InlineMarkdownEditor({
+  noteType,
+  markdownPayload,
+}: props): JSX.Element {
+  const [markdown, setMarkdown] = useState<string>(markdownPayload)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<"edit" | "preview">("edit")
   const markdownRef = useRef<HTMLDivElement>(null)
-
-  // Fetch markdown from the LLM API
-  const fetchMarkdownFromLLM = async (): Promise<void> => {
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      // Replace with your actual LLM API endpoint
-      const response = await fetch("/api/get-markdown")
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch markdown from LLM API")
-      }
-
-      const data: MarkdownResponse = await response.json()
-      setMarkdown(data.markdown)
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Unknown error occurred"
-      setError(errorMessage)
-      toast({
-        title: "LLM API Error!",
-        description: errorMessage,
-      })
-      console.error("Error fetching markdown:", err)
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   // Save the edited markdown back to your API/backend
   const saveMarkdown = async (): Promise<void> => {
@@ -106,11 +81,6 @@ export function InlineMarkdownEditor({ noteType }: props): JSX.Element {
     onPrintError: (error: Error) =>
       console.error("Error printing to PDF:", error),
   })
-
-  // Fetch markdown when component mounts
-  useEffect(() => {
-    fetchMarkdownFromLLM()
-  }, [])
 
   return (
     <div>
@@ -184,7 +154,11 @@ export function InlineMarkdownEditor({ noteType }: props): JSX.Element {
   )
 }
 
-export default function PatientNotes(): JSX.Element {
+interface payload {
+  content: string
+}
+
+export default function PatientNotes({ content }: payload): JSX.Element {
   return (
     <>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -210,7 +184,10 @@ export default function PatientNotes(): JSX.Element {
       <div className="grid gap-4">
         <div>
           <div className="rounded-lg border">
-            <InlineMarkdownEditor noteType="Generated Patient Note" />
+            <InlineMarkdownEditor
+              noteType="Generated Patient Note"
+              markdownPayload={content}
+            />
           </div>
         </div>
       </div>

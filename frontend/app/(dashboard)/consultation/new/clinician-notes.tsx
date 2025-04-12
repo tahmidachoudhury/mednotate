@@ -4,7 +4,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@radix-ui/react-select"
+} from "@/components/ui/select"
 import { InlineMarkdownEditor } from "./patient-notes"
 import { useState } from "react"
 
@@ -21,24 +21,21 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-export default function MedicalNotes(): JSX.Element {
-  const [noteTemplate, setNoteTemplate] = useState("soap")
+interface payload {
+  content: string
+  noteFormat: string
+}
+
+export default function MedicalNotes({
+  content,
+  noteFormat,
+}: payload): JSX.Element {
   return (
     <>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <h3 className="font-medium">Medical Note Template</h3>
-          <Select value={noteTemplate} onValueChange={setNoteTemplate}>
-            <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="Template" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="soap">SOAP</SelectItem>
-              <SelectItem value="dap">DAP</SelectItem>
-              <SelectItem value="birp">BIRP</SelectItem>
-              <SelectItem value="progress">Progress</SelectItem>
-            </SelectContent>
-          </Select>
+          <Button variant="secondary" disabled>{noteFormat}</Button>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm">
@@ -59,7 +56,10 @@ export default function MedicalNotes(): JSX.Element {
       <div className="grid gap-4 md:grid-cols-3">
         <div className="md:col-span-2">
           <div className="rounded-lg border">
-            <InlineMarkdownEditor noteType="Generated Medical Note" />
+            <InlineMarkdownEditor
+              noteType="Generated Medical Note"
+              markdownPayload={content}
+            />
           </div>
         </div>
         <div className="space-y-4">
