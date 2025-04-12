@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Edit, FileText, Filter, Plus, Search, Trash } from "lucide-react"
@@ -50,7 +51,50 @@ export default function NotesPage() {
 
         <TabsContent value="all" className="mt-4">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Link href="/soap">
+              <Card >
+                <CardHeader className="pb-2">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="text-base">
+                        SOAP Note
+                      </CardTitle>
+                      <CardDescription>
+                        Patient 100  •{" "}
+                        Completed
+                      </CardDescription>
+                    </div>
+                    <div
+                      className={`rounded-full px-2 py-0.5 text-xs bg-green-100 text-green-800`}
+                        >
+                      Completed
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="line-clamp-3 text-sm text-muted-foreground">
+                    Follow-up appointment for medication review. Patient reports improved symptoms since last visit. Blood pressure readings have been within normal range.
+                  </p>
+                </CardContent>
+                <CardFooter className="flex justify-between border-t pt-4">
+                  <div className="text-xs text-muted-foreground">
+                    Last edited: April 14, 2025
+                  </div>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon">
+                      <Edit className="h-4 w-4" />
+                      <span className="sr-only">Edit</span>
+                    </Button>
+                    <Button variant="ghost" size="icon">
+                      <Trash className="h-4 w-4" />
+                      <span className="sr-only">Delete</span>
+                    </Button>
+                  </div>
+                </CardFooter>
+              </Card>
+            </Link>
             {[1, 2, 3, 4, 5].map((i) => (
+              
               <Card key={i}>
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">
@@ -72,8 +116,8 @@ export default function NotesPage() {
                         i % 2 === 0
                           ? "bg-yellow-100 text-yellow-800"
                           : "bg-green-100 text-green-800"
-                      }`}
-                    >
+                        }`}
+                        >
                       {i % 2 === 0 ? "Draft" : "Completed"}
                     </div>
                   </div>
@@ -103,6 +147,7 @@ export default function NotesPage() {
                   </div>
                 </CardFooter>
               </Card>
+          
             ))}
           </div>
         </TabsContent>
