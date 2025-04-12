@@ -411,7 +411,7 @@ export function ConsultationRecorder() {
             <MedicalNotes content={medicalNote} noteFormat={noteTemplate} />
           </TabsContent>
           <TabsContent value="patient-note" className="mt-4 space-y-4">
-            <PatientNotes content={patientNote} />
+            
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
                 <h3 className="font-medium">Medical Note Template</h3>
