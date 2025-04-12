@@ -38,7 +38,7 @@ export async function getAIPatientNotes() {
 
 ${JSON.stringify(clinicianNotes, null, 2)}
 
-Please summarize this in a patient-friendly format. Keep it clear, empathetic, and free of medical jargon. Be conversational but professional.`,
+Please summarize this in a patient-friendly format. Keep it clear, empathetic, and free of medical jargon. Be conversational but professional. Remove pleasantries like Sure!`,
     },
   ]
 
