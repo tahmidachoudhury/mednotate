@@ -91,7 +91,11 @@ export function InlineMarkdownEditor({
           <Button
             variant={viewMode === "edit" ? "default" : "ghost"}
             size="sm"
-            className="h-8 px-3"
+            className={`h-8 px-3 transition-all duration-200 ${
+              viewMode === "edit"
+                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                : "hover:bg-muted-foreground/10"
+            }`}
             onClick={() => setViewMode("edit")}
           >
             Edit
@@ -99,7 +103,11 @@ export function InlineMarkdownEditor({
           <Button
             variant={viewMode === "preview" ? "default" : "ghost"}
             size="sm"
-            className="h-8 px-3"
+            className={`h-8 px-3 transition-all duration-200 ${
+              viewMode === "preview"
+                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                : "hover:bg-muted-foreground/10"
+            }`}
             onClick={() => setViewMode("preview")}
           >
             Preview
