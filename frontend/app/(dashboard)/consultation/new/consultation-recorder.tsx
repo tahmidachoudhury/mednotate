@@ -34,13 +34,23 @@ import {
   ThumbsUp,
   Wand2,
 } from "lucide-react"
+import PatientNotes from "./patient-notes"
+import MedicalNotes from "./clinician-notes"
+import { getAIMedicalNotes } from "@/app/services/MedicalNotesGenerator"
+import { getAIPatientNotes } from "@/app/services/PatientNotesGenerator"
 
 export function ConsultationRecorder() {
   const { toast } = useToast()
   /// State variables
   const [isRecording, setIsRecording] = useState(false)
+  const [noteTemplate, setNoteTemplate] = useState("SOAP")
   const [activeTab, setActiveTab] = useState("record")
   const [transcription, setTranscription] = useState("")
+  
+  const [medicalNote, setMedicalNote] = useState("")
+  const [patientNote, setPatientNote] = useState("")
+  const [language, setLanguage] = useState("english")
+=======
   const [isProcessing, setIsProcessing] = useState(false)
   const [recordingError, setRecordingError] = useState<string | null>(null)
   const [audioLevel, setAudioLevel] = useState<number[]>(new Array(50).fill(5))
@@ -224,16 +234,37 @@ export function ConsultationRecorder() {
     setIsRecording(false)
   }
 
-  const handleGenerateNote = () => {
+  async function handleGenerateNote() {
+    // Run the openai API endpoint
+    getAIMedicalNotes(noteTemplate)
+      .then((soapNote) => {
+        console.log("Retrieved SOAP note:", soapNote)
+        const result = soapNote
+        setMedicalNote(result)
+        setActiveTab("note")
+      })
+      .catch((error) => {
+        console.error("Error:", error)
+      })
     toast({
       title: "Generating medical note",
       description: "Using AI to create a structured note",
     })
 
-    // Simulate delay then move to next tab
-    setTimeout(() => {
-      setActiveTab("note")
-    }, 1500)
+    // Run the openai API endpoint
+    getAIPatientNotes()
+      .then((soapNote) => {
+        console.log("Retrieved SOAP note:", soapNote)
+        const result = soapNote
+        setPatientNote(result)
+      })
+      .catch((error) => {
+        console.error("Error:", error)
+      })
+    toast({
+      title: "Generating patient note",
+      description: "Using AI to create a structured note",
+    })
   }
 
   return (
@@ -350,7 +381,20 @@ export function ConsultationRecorder() {
 
           <TabsContent value="review" className="mt-4 space-y-4">
             <div className="rounded-lg border p-4">
-              <h3 className="mb-2 font-medium">Transcription Review</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="mb-2 font-medium">Transcription Review</h3>
+                <Select value={noteTemplate} onValueChange={setNoteTemplate}>
+                  <SelectTrigger className="w-[120px]">
+                    <SelectValue placeholder="Template" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="SOAP">SOAP</SelectItem>
+                    <SelectItem value="DAP">DAP</SelectItem>
+                    <SelectItem value="BIRP">BIRP</SelectItem>
+                    <SelectItem value="Progress">Progress</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <Textarea
                 className="min-h-[200px]"
                 value={transcription}
@@ -371,7 +415,7 @@ export function ConsultationRecorder() {
           </TabsContent>
 
           <TabsContent value="note" className="mt-4 space-y-4">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            {/* <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
                 <h3 className="font-medium">Medical Note Template</h3>
                 <Select value={noteTemplate} onValueChange={setNoteTemplate}>
@@ -518,9 +562,11 @@ export function ConsultationRecorder() {
                   </Button>
                 </div>
               </div>
-            </div>
+            </div> */}
+            <MedicalNotes content={medicalNote} noteFormat={noteTemplate} />
           </TabsContent>
           <TabsContent value="patient-note" className="mt-4 space-y-4">
+            <PatientNotes content={patientNote} />
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
                 <h3 className="font-medium">Medical Note Template</h3>
@@ -669,6 +715,7 @@ export function ConsultationRecorder() {
                 </div>
               </div>
             </div>
+
           </TabsContent>
         </Tabs>
       </CardContent>
