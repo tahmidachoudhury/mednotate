@@ -82,15 +82,15 @@ Mednotate streamlines the clinical documentation process by converting patient-p
 
 This project was developed as part of the Harvard HSIL Hackathon and is currently in the prototype stage.
 
-**🔮 Planned Enhancements**
+🔮 Planned Enhancements
 
-**EHR integration capabilities**
+EHR integration capabilities
 
-**Expanded specialty-specific templates**
+Expanded specialty-specific templates
 
-**Enhanced AI analysis features**
+Enhanced AI analysis features
 
-**Mobile application development**
+Mobile application development
 
 
 ### 👥 Team 
