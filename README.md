@@ -60,7 +60,7 @@ Mednotate streamlines the clinical documentation process by converting patient-p
 6. **Open the app**
    Visit http://localhost:3000 in your browser.
 
-###🛠️ Technologies Used
+### 🛠️ Technologies Used
 
 **Frontend:** Next.js, React, Tailwind CSS, shadcn/ui
 **AI/ML:** Azure OpenAI, Hugging Face Whisper
