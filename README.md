@@ -62,22 +62,34 @@ Mednotate streamlines the clinical documentation process by converting patient-p
    
    Visit http://localhost:3000 in your browser.
 
-### 🛠️ Technologies Used
+---
+
+## 🛠️ Technologies Used
 
 **Frontend:** Next.js, React, Tailwind CSS, shadcn/ui
+
 **AI/ML:** Azure OpenAI, Hugging Face Whisper
+
 **Audio:** Web Speech API
+
 **State Management:** React Context API
+
 **Styling:** Tailwind CSS
 
-### 📌 Project Status
+---
+
+## 📌 Project Status
 
 This project was developed as part of the Harvard HSIL Hackathon and is currently in the prototype stage.
 
 **🔮 Planned Enhancements**
+
 **EHR integration capabilities**
+
 **Expanded specialty-specific templates**
+
 **Enhanced AI analysis features**
+
 **Mobile application development**
 
 
@@ -85,7 +97,9 @@ This project was developed as part of the Harvard HSIL Hackathon and is currentl
 
 Team #5 - Harvard HSIL Hackathon
 
-### 📄 License
+---
+
+## 📄 License
 
 This project is licensed under the MIT License – see the LICENSE file for details.
 
