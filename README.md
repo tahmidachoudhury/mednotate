@@ -51,6 +51,7 @@ Mednotate streamlines the clinical documentation process by converting patient-p
    npm install
    
 3. **Configure environment variables**
+   
    Create a .env file based on .env.example and add your API keys.
    
 5. **Start the development server**
@@ -58,6 +59,7 @@ Mednotate streamlines the clinical documentation process by converting patient-p
    npm run dev
    ```
 6. **Open the app**
+   
    Visit http://localhost:3000 in your browser.
 
 ### 🛠️ Technologies Used
