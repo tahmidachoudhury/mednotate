@@ -1,9 +1,9 @@
 // components/InlineMarkdownEditor.tsx
-import { Alert } from "@/components/ui/alert"
-import { Button } from "/components/ui/button"
+import { Alert } from "../../../components/ui/alert.tsx"
+import { Button } from "@/components/ui/button.tsx"
 import { Label } from "@radix-ui/react-label"
 import { Switch } from "@radix-ui/react-switch"
-import { toast, useToast } from "@/hooks/use-toast"
+import { toast } from "@/components/ui/use-toast.ts"
 import { Download, Save, Share2 } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import React from "react"
@@ -134,9 +134,10 @@ export function InlineMarkdownEditor({
           ) : (
             <div
               ref={markdownRef}
-              className="w-full h-96 p-4 overflow-auto prose prose-sm max-w-none"
+              className="w-full h-96 p-4 overflow-auto prose prose-sm max-w-none dark:prose-invert"
             >
               <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
                 components={{
                   h1: ({node, ...props}) => <h1 className="text-2xl font-bold mb-4" {...props} />,
                   h2: ({node, ...props}) => <h2 className="text-xl font-bold mb-3" {...props} />,
@@ -148,9 +149,9 @@ export function InlineMarkdownEditor({
                   code: ({node, className, children, ...props}) => {
                     const isInline = !className?.includes('language-')
                     if (isInline) {
-                      return <code className="bg-gray-100 px-1 rounded" {...props}>{children}</code>
+                      return <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded" {...props}>{children}</code>
                     }
-                    return <code className="block bg-gray-100 p-2 rounded mb-4" {...props}>{children}</code>
+                    return <code className="block bg-gray-100 dark:bg-gray-800 p-2 rounded mb-4" {...props}>{children}</code>
                   }
                 }}
               >

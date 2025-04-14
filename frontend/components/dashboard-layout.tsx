@@ -19,6 +19,8 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -41,6 +43,7 @@ import {
   User,
   UserCircle,
 } from "lucide-react"
+import { Separator } from "./ui/separator"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -68,6 +71,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       icon: FileText,
     },
     {
+      title: "History",
+      href: "/history",
+      icon: History,
+    },
+  ]
+  const comingSoon = [
+    {
       title: "Patients",
       href: "/patients",
       icon: User,
@@ -76,11 +86,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       title: "Calendar",
       href: "/calendar",
       icon: Calendar,
-    },
-    {
-      title: "History",
-      href: "/history",
-      icon: History,
     },
     {
       title: "Knowledge Base",
@@ -120,6 +125,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
           </SidebarHeader>
           <SidebarContent>
+            <SidebarGroup>
             <SidebarMenu>
               {routes.map((route) => (
                 <SidebarMenuItem key={route.href}>
@@ -127,7 +133,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     asChild
                     isActive={pathname === route.href}
                     tooltip={route.title}
-                  >
+                    >
                     <Link href={route.href}>
                       <route.icon className="h-5 w-5" />
                       <span>{route.title}</span>
@@ -135,7 +141,30 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-            </SidebarMenu>
+              </SidebarMenu>
+              </SidebarGroup>
+              
+              <SidebarGroup>
+
+              <SidebarGroupLabel>Coming Soon</SidebarGroupLabel>
+              <SidebarMenu>
+
+              {comingSoon.map((route) => (
+                <SidebarMenuItem key={route.href}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={false}
+                    tooltip={route.title}
+                    >
+                    <div>
+                      <route.icon className="h-5 w-5" />
+                      <span>{route.title}</span>
+                    </div>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+              </SidebarMenu>
+              </SidebarGroup>
           </SidebarContent>
           <SidebarFooter className="border-t p-4">
             <DropdownMenu>

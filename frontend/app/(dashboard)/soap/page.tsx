@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useRef, useCallback } from "react"
@@ -20,7 +19,7 @@ import {
 } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 import {
   AlertCircle,
   ArrowRight,
@@ -40,7 +39,7 @@ import { getAIMedicalNotes } from "@/app/services/MedicalNotesGenerator"
 import { getAIPatientNotes } from "@/app/services/PatientNotesGenerator"
 import { patientSummary, soapNoteMarkdown } from "../notes/soapNote"
 
-export default function page(){
+export default function Page(){
   const { toast } = useToast()
   /// State variables
   const [isRecording, setIsRecording] = useState(false)
