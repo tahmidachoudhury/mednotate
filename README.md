@@ -5,7 +5,7 @@
 ---
 
 <a href="https://www.youtube.com/watch?v=VW9xBo8fyO4">
-  <img src="https://img.youtube.com/vi/VW9xBo8fyO4/0.jpg" style="width:100%;" />
+  <img src="mednotate_demo.png" style="width:100%;" />
 </a>
 
 ## 📝 Description
