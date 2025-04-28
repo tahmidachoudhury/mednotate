@@ -4,6 +4,8 @@
 
 ---
 
+[![Watch the demo](https://img.youtube.com/vi/VW9xBo8fyO4/0.jpg)](https://www.youtube.com/watch?v=VW9xBo8fyO4)
+
 ## 📝 Description
 
 Mednotate streamlines the clinical documentation process by converting patient-provider conversations into structured medical notes, significantly reducing the administrative burden on healthcare professionals.
