@@ -4,7 +4,9 @@
 
 ---
 
-[![Watch the demo](https://img.youtube.com/vi/VW9xBo8fyO4/0.jpg)](https://www.youtube.com/watch?v=VW9xBo8fyO4)
+<a href="https://www.youtube.com/watch?v=VW9xBo8fyO4">
+  <img src="https://img.youtube.com/vi/VW9xBo8fyO4/0.jpg" style="width:100%;" />
+</a>
 
 ## 📝 Description
 
