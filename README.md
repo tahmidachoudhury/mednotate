@@ -4,7 +4,7 @@
 
 ---
 
-<a href="https://www.youtube.com/watch?v=VW9xBo8fyO4">
+<a href="https://www.youtube.com/watch?v=VW9xBo8fyO4" target="_blank">
   <img src="mednotate_demo.png" style="width:100%;" />
 </a>
 
